@@ -189,6 +189,7 @@ folder per site, each script named after its extension's id, and an `index.json`
 ```
 my-repo/
   index.json
+  index.json.sig
   my-site/
     my-site.js
     my-site-novels.js
@@ -198,17 +199,25 @@ my-repo/
 
 ```sh
 lunaris-ext index ./my-repo
+LUNARIS_SIGNING_KEY="$(cat my-repo.key)" lunaris-ext sign ./my-repo
 ```
 
-This checks every extension, refuses a script not named after its extension's id, then
+`index` checks every extension, refuses a script not named after its extension's id, then
 writes `index.json` with each one's info, path and SHA-256 checksum. (A small repo can also
 keep its scripts loose next to `index.json`.) Run it again after every change; Lunaris refuses a
 script whose checksum, id or version doesn't match the index. Users add the URL of
 `index.json` in Lunaris to see your extensions.
 
+`sign` writes `index.json.sig`, and Lunaris refuses an index without a valid one. Make the key
+once with `lunaris-ext keygen my-repo.key` and keep it secret, out of the repo (in CI, as a
+secret). Lunaris remembers the key a repo was signed with when the user adds it and refuses
+any other key afterwards, so losing the key means users have to remove and add your repo
+again. For a CI setup, see the
+[default repo's workflow](https://github.com/lunaris-app/extensions/blob/main/.github/workflows/publish.yml).
+
 ### Updating an extension
 
-Raise `version`, rebuild `index.json`, and upload both. Lunaris offers the update when the
+Raise `version`, rebuild and sign `index.json`, and upload all three. Lunaris offers the update when the
 index lists a version different from the installed one. Keep `id` the same forever.
 
 ### Keeping your source private

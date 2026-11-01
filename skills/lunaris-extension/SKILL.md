@@ -62,7 +62,9 @@ Read these before writing code, and follow them over anything below if they diff
    `render` doesn't work in `lunaris-ext`; say so and ask the user to try those parts in the
    app.
 5. **Publish:** put the script at `<repo>/<id>/<id>.js` and run `lunaris-ext index <repo>` to
-   write `index.json`. Run it again after every change.
+   write `index.json`, then `lunaris-ext sign <repo>` with the repo's key in
+   `$LUNARIS_SIGNING_KEY` to write `index.json.sig` (Lunaris refuses unsigned repos). Run both
+   again after every change. Never create, print or commit the key yourself; ask the user.
 
 ## Novels
 
