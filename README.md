@@ -8,13 +8,24 @@ the desktop reader for manga, manhwa, manhua and light novels.
 | `template.js`   | A starter extension to copy                             |
 | `lunaris.d.ts`  | Types for the extension API, for autocomplete and checks |
 | `jsconfig.json` | Switches type checking on for scripts in the folder     |
+| `skills/`       | A skill that teaches AI coding agents to write extensions |
+
+## Writing with an AI agent
+
+`skills/lunaris-extension/SKILL.md` is an [Agent Skill](https://agentskills.io) that teaches
+an AI coding agent the extension API, its sandbox rules and the `lunaris-ext` workflow. Copy
+the `lunaris-extension` folder into your agent's skills folder (for Claude Code,
+`.claude/skills/` in your project), or paste `SKILL.md` into any other assistant's
+instructions. It reads this guide and `lunaris.d.ts` from GitHub when they aren't next to it.
 
 ## The lunaris-ext tool
 
 `lunaris-ext` runs one function of your script and prints the result, and builds a repo's
 `index.json`. Download it for your system from the
-[Releases page](https://github.com/lunaris-app/sdk/releases/latest), put it on your `PATH`,
-and on macOS or Linux make it executable (`chmod +x lunaris-ext`).
+[Releases page](https://github.com/lunaris-app/sdk/releases/latest)
+(`lunaris-ext-<system>-<arch>`), rename it to `lunaris-ext` (`lunaris-ext.exe` on Windows),
+and put it on your `PATH`. On macOS or Linux make it executable (`chmod +x lunaris-ext`).
+It isn't signed yet, so on macOS also run `xattr -d com.apple.quarantine lunaris-ext`.
 
 It has no browser, so `render` doesn't work in it and a Cloudflare check is reported
 rather than solved. Try those parts in the app.
@@ -199,6 +210,27 @@ script whose checksum, id or version doesn't match the index. Users add the URL 
 
 Raise `version`, rebuild `index.json`, and upload both. Lunaris offers the update when the
 index lists a version different from the installed one. Keep `id` the same forever.
+
+### Keeping your source private
+
+Lunaris only ever sees the script you publish, so your source can live in a private repo in
+any shape: TypeScript, many files, a test suite. Publish one bundled, minified script:
+
+```sh
+bun build src/index.ts --minify --format=iife --outfile=my-repo/my-site/my-site.js
+lunaris-ext index ./my-repo
+```
+
+- **`--format=iife`**, so the output has no `import` or `export`.
+- **Bundled packages must fit the sandbox.** Anything that needs Node or the browser
+  (`fs`, `window`, timers, a Promise-based `fetch`) won't run; use the host's `fetch` and
+  `html`.
+- **Functions sent to `render` must stand alone.** The minifier renames and moves your
+  helpers, so pass the helpers a page script needs as arguments, as described under
+  `render` above.
+
+Minifying makes a script hard to read, not secret: whoever installs it can still read the
+code that runs.
 
 ### Host API versions
 
