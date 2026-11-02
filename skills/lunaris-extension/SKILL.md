@@ -36,7 +36,11 @@ Read these before writing code, and follow them over anything below if they diff
 - **Don't fake the browser.** Don't set `User-Agent`, `Cookie`, `Origin` or `Referer`, and
   never try to get past Cloudflare or a captcha. Lunaris solves Cloudflare itself; for other
   human checks use `render(url, { verify: true })` and let the user pass it.
-- **Keep `info.api` at 1** unless the script uses `render` or the DOM-style node names (then 2).
+- **Keep `info.api` at 1** unless the script uses `render` or the DOM-style node names (then 2)
+  or `info.settings` (then 3).
+- **Read options with `setting(key)`, inside functions.** Declare them in `info.settings`. It
+  returns `null` at the script's top level and for keys `info` doesn't list.
+- **If the site's terms forbid scraping, say so in `info.terms`** (up to 300 characters).
 - **`info.id`** is lowercase letters, digits and dashes, the file is named `<id>.js`, and the
   id never changes. Raise `info.version` on every release.
 

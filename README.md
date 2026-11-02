@@ -76,6 +76,7 @@ extension({
     api: 1, // the host API you wrote it for
     content: "sfw", // "sfw", "mixed" (some adult titles) or "nsfw" (mostly adult)
     site: "https://my-site.com", // optional: its icon becomes the extension's icon
+    terms: "", // optional: a short note shown beside it, e.g. that the site's terms forbid scraping
   },
 
   search(query, page) {
@@ -156,6 +157,34 @@ timers. Sites whose content is built by their own JavaScript usually have a JSON
 it: open the browser's network tab, find that request, and `JSON.parse(fetch(api).text)`.
 Reach for `render` only when there's no such API.
 
+### Settings
+
+An extension can offer options, such as a preferred language, in `info.settings` (API 3).
+The user sets them from the gear button in Extensions, and your functions read them with
+`setting(key)`:
+
+```js
+info: {
+  // …
+  api: 3,
+  settings: [
+    { key: "lang", label: "Language", type: "select", default: "en",
+      choices: [{ value: "en", label: "English" }, { value: "es", label: "Spanish" }] },
+    { key: "hd", label: "High quality images", type: "toggle", default: false },
+  ],
+},
+search(query, page) {
+  const lang = setting("lang"); // "en" until the user picks another
+  // …
+},
+```
+
+`type` is `"toggle"` (a boolean), `"select"` (one of `choices`' values) or `"text"` (a
+string up to 1000 characters). `setting` returns the user's choice, or `default` when there
+is none or it no longer fits after an update. It returns `null` for keys `info` doesn't
+list and at the script's top level, so call it inside your functions. `lunaris-ext run`
+uses the defaults.
+
 ### Rules
 
 - **One call at a time.** Lunaris runs one function of your extension at a time, and each
@@ -179,7 +208,8 @@ Reach for `render` only when there's no such API.
   `User-Agent` or `Cookie: cf_clearance` yourself.
 - **Prefer official APIs** when a site has one (MangaDex has). They're faster, and they
   don't break when the site's layout changes.
-- **Respect the site's terms.** If they forbid scraping, say so in your repo's README.
+- **Respect the site's terms.** If they forbid scraping, say so in `info.terms`, which
+  Lunaris shows beside the extension, and in your repo's README.
 
 ### Publishing a repo
 
@@ -245,6 +275,7 @@ code that runs.
 
 `info.api` is the host API your script was written for. Lunaris refuses scripts that need a
 newer API than it has, so users get "update Lunaris" instead of a broken extension. The
-current API is **2** (it added `render` and the DOM names on nodes); set `api: 2` only if
-you use them, so older versions of Lunaris can still run your script. New functions will
+current API is **3** (it added `info.settings` and `setting`; 2 added `render` and the DOM
+names on nodes); set the lowest number that has what you use, so older versions of Lunaris
+can still run your script. New functions will
 come with a new API number; this guide and `lunaris.d.ts` always describe the newest.
