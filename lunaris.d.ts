@@ -43,6 +43,9 @@ interface Item {
   // Titles only. A kind not in info.kinds falls back to the first one there.
   kind?: Kind;
   author?: string;
+  // Chapters only. When it was published, as ISO 8601 ("2026-11-05" or
+  // "2026-11-05T14:30:00Z"). Lunaris shows no date for anything else.
+  date?: string;
 }
 
 interface Details {
