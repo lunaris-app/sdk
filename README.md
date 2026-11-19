@@ -147,14 +147,19 @@ destructuring, `?.`, `??`, `JSON`, `RegExp`, …):
 
   With `verify: true`, the page may need the user: a "verify you're human" box, or a site
   that hands out a token only after one. If the page or the script hasn't finished after
-  10 seconds, Lunaris shows the window, titled "Verify to continue: <site>", until `render`
-  returns; closing it cancels. Waiting for the page then gets up to two minutes, but the
+  10 seconds, Lunaris shows the window, titled "Verify <site> for the <id> extension", until
+  `render` returns; closing it cancels. Waiting for the page then gets up to two minutes, but the
   whole call still stops at one minute. Have the script wait without a timeout of its own
   while the user acts.
 
 There is no DOM (`document`, `window`), no `require` or `import`, no file system and no
-timers. Sites whose content is built by their own JavaScript usually have a JSON API behind
-it: open the browser's network tab, find that request, and `JSON.parse(fetch(api).text)`.
+timers. `fetch` and `render` reach only the public internet: requests to `localhost`,
+`*.local` and private or link-local addresses (`192.168.x.x`, `10.x.x.x`,
+`169.254.x.x`, …) fail, and so do loads from them inside a rendered page. The render window
+keeps its own cookies, apart from the app's other windows such as tracker sign-ins.
+
+Sites whose content is built by their own JavaScript usually have a JSON API behind it: open
+the browser's network tab, find that request, and `JSON.parse(fetch(api).text)`.
 Reach for `render` only when there's no such API.
 
 ### Settings
