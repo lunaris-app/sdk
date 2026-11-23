@@ -99,6 +99,13 @@ extension({
 | `details(url)`        | a title's `url` from `search`       | optional; see below                                 |
 | `text(url)`           | a chapter's `url` from `chapters`   | novels only: the chapter as HTML                    |
 
+Chapters may also carry `date`, when the chapter was published, as an ISO 8601 string such as
+`"2026-11-05"` or `"2026-11-05T14:30:00Z"`; Lunaris shows no date for anything else.
+
+If a source lists a chapter once per scanlation group, give each chapter a `scanlator`: the
+group's name. When a title has more than one group, the user can hide groups from its chapter
+list, and reading skips their chapters. Leave it out when the source doesn't say.
+
 Search results may also carry `kind` and `author`. `details(url)` is optional: Lunaris
 calls it when a title is first opened and when the user refreshes it, never during
 background update checks. It returns any of `description` (plain text, paragraphs split by
@@ -192,8 +199,10 @@ uses the defaults.
 
 ### Rules
 
-- **One call at a time.** Lunaris runs one function of your extension at a time, and each
-  call is stopped after one minute.
+- **Calls don't share variables.** Lunaris runs up to four calls of your extension at once,
+  each in its own copy of the script, so browsing isn't held up by an update check. A
+  top-level variable set in one call may be missing in the next; keep what a call needs
+  inside it. Each call is stopped after one minute.
 - **Throw on failure.** `throw new Error("…")` with a short reason. Lunaris shows the
   message. Don't return made-up data.
 - **Be gentle.** Make as few requests as a function needs. Don't loop through every page
